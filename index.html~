@@ -1,0 +1,102 @@
+<html> 
+  <head>  
+
+    <style type="text/css"> 
+      #input { 
+        width: 20%; 
+      }
+      #messages { 
+        position: fixed; 
+        top: 8%; 
+        bottom: 0.8%; 
+        left: 0.8%; 
+        right: 0.8%; 
+        border: 1px solid #EEEEEE; 
+        padding: 0.8%; 
+     }
+   </style> 
+
+
+
+
+    <title>Socket.IO example application</title> 
+      
+
+  </head> 
+<body> 
+
+  Your message: 
+  <input type="text" id="input"> 
+  <div id="messages"></div> 
+
+
+  <script src="http://ec2-54-213-131-161.us-west-2.compute.amazonaws.com:4000/socket.io/socket.io.js"></script> 
+
+
+      <script type="text/javascript">
+
+
+	/**
+	 * Implementation note: 
+	 * --------------------
+	 * we need to handle two cases. 
+         * 
+         * a message from the server arrives
+         * 
+         * a message has to be sent to the server
+	 * 
+	 * The addMessage function is used to add a message 
+	 * to from the server to the page
+	 * 
+	 * 
+         */
+
+	
+ 
+	var messageElement = document.getElementById('messages'); 
+	var lastMessageElement = null; 
+
+	function addMessage(message){ 
+	  var newMessageElement = document.createElement('div'); 
+	  var newMessageText = document.createTextNode(message); 
+	
+	  newMessageElement.appendChild(newMessageText); 
+	  messageElement.insertBefore(newMessageElement, lastMessageElement); 
+	  lastMessageElement = newMessageElement; 
+        }
+	
+
+	var socket = io.connect('http://ec2-54-213-131-161.us-west-2.compute.amazonaws.com:4000'); 
+	socket.on('serverMessage', function(content) { addMessage(content);  }); 
+
+
+	/**
+         * Implemenation note: 
+	 * -------------------
+         * This is login step 3, where the client receives the 
+	 * login event from the server, prompts for a username, 
+         * and responds to the server with a 'login' event containing 
+         * the username
+         */ 
+
+	socket.on('login', function(){
+	   var username = prompt('What username would you like to use?'); 
+	   socket.emit('login', username); 
+	});   
+     
+	var inputElement = document.getElementById('input'); 
+
+	inputElement.onkeydown = function(keyboardEvent){ 
+	  if(keyboardEvent.keyCode === 13){
+	    socket.emit('clientMessage', inputElement.value); 
+	    inputElement.value = ''; 
+	    return false; 
+	  } else { 
+	    return true; 
+          } 
+        }; 
+      </script> 
+
+
+</body> 
+</html>
